@@ -21,6 +21,12 @@ class KubeConfig(object):
     def from_service_account(cls, path="/var/run/secrets/kubernetes.io/serviceaccount", **kwargs):
         with open(os.path.join(path, "token")) as fp:
             token = fp.read()
+        if os.path.exists(os.path.join(path, "namespace")):
+            with open(os.path.join(path, "namespace")) as fp:
+                namespace = fp.read()
+        else:
+            namespace = "default"
+
         host = os.environ.get("PYKUBE_KUBERNETES_SERVICE_HOST")
         if host is None:
             host = os.environ["KUBERNETES_SERVICE_HOST"]
@@ -51,6 +57,7 @@ class KubeConfig(object):
                     "context": {
                         "cluster": "self",
                         "user": "self",
+                        "namespace": namespace,
                     },
                 }
             ],
